@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Ubuntu+Sans:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+  <title>Advanced JavaScript Alarm Clock</title>
+  <style>
+    *{
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    body {
+      font-family: "Ubuntu Sans", sans-serif;
+      background-color: #007bff;
+    }
+    .container{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      /* height: 97vh; */
+    }
+    .clock {
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    #currentTime {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .controls select{
+      padding: 10px 15px;
+      font-size: 1em;
+      text-align: center;
+    }
+    .btn {
+        width: 100%;
+        background: #007bff;
+        padding: 15px;
+        border: none;
+        margin-top: 5px;
+        color: white;
+        font-weight: bold;
+        font-size: large;
+    }
+    .nav{
+      background-color: white;
+      color: #007bff;
+      text-align: center;
+      margin-bottom: 70px;
+      padding: 5px 0px;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="nav">
+    <h1>My Alarm</h1>
+  </div>
+  <div class="container">
+  <div class="clock">
+    <img src="clock.svg" width="120px" alt="">
+    <h2 id="currentTime"></h2>
+    <div class="controls">
+      <select id="hours">
+        <!-- Options will be populated by JavaScript -->
+        <option value="hours" selected disabled hidden>Hours</option>
+      </select>
+      <select id="minutes">
+        <!-- Options will be populated by JavaScript -->
+        <option value="Minute" selected disabled hidden>Minute</option>
+      </select>
+      <select id="ampm">
+        <option value="ampm" selected disabled hidden>AM/PM</option>
+        <option value="AM">AM</option>
+        <option value="PM">PM</option>
+      </select>
+    </div>
+    <button id="setAlarm" class="btn">Set Alarm</button>
+    <button id="stopAlarm" class="btn">Stop Alarm</button>
+  </div>
+</div>
+  <audio id="alarmSound" src="ringtone.mp3" preload="auto" autoplay></audio>
+
+  <script>
+    // Populate hour and minute select elements
+    const hoursSelect = document.getElementById('hours');
+    const minutesSelect = document.getElementById('minutes');
+    for (let i = 1; i <= 12; i++) {
+      const option = document.createElement('option');
+      option.value = i;
+      option.text = i;
+      hoursSelect.appendChild(option);
+    }
+    for (let i = 0; i < 60; i++) {
+      const option = document.createElement('option');
+      option.value = i < 10 ? '0' + i : i;
+      option.text = i < 10 ? '0' + i : i;
+      minutesSelect.appendChild(option);
+    }
+
+    const currentTimeElement = document.getElementById('currentTime');
+    const setAlarmButton = document.getElementById('setAlarm');
+    const stopAlarmButton = document.getElementById('stopAlarm');
+    const snoozeAlarmButton = document.getElementById('snoozeAlarm');
+    const alarmSound = document.getElementById('alarmSound');
+    let alarmTime = null;
+    let alarmTimeout = null;
+
+    // Function to update the current time
+    function updateCurrentTime() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+      const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+      const formattedSeconds = seconds < 10 ? '0' + seconds : seconds;
+      currentTimeElement.textContent = `${formattedHours}:${formattedMinutes}:${formattedSeconds} ${ampm}`;
+      if (alarmTime && `${formattedHours}:${formattedMinutes} ${ampm}` === alarmTime) {
+        alarmSound.play();
+        clearTimeout(alarmTimeout);
+      }
+    }
+
+    // Function to set the alarm
+    setAlarmButton.addEventListener('click', () => {
+      const selectedHour = hoursSelect.value;
+      const selectedMinute = minutesSelect.value;
+      const selectedAmPm = document.getElementById('ampm').value;
+      alarmTime = `${selectedHour}:${selectedMinute} ${selectedAmPm}`;
+      alert(`Alarm set for ${alarmTime}`);
+    });
+
+    // Update the current time every second
+    setInterval(updateCurrentTime, 1000);
+    
+    // Function to stop the alarm
+    stopAlarmButton.addEventListener('click', stopAlarm);
+
+    function stopAlarm() {
+      alarmSound.pause(); // Pause the alarm sound
+      alarmSound.currentTime = 0; // Reset the audio to the beginning
+      alarmTime = null; // Reset the alarm time
+      clearTimeout(alarmTimeout); // Clear the alarm timeout
+      alert('Alarm stopped!');
+    }
+</script>
+</body>
+</html>
